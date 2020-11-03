@@ -1,0 +1,11 @@
+configurations:
+    - name: local
+      endpoint: localhost:9000
+      accesskey: minioadmin
+      secretkey: minioadmin
+      usessl: false
+    - name: invalid
+      endpoint: localhost
+      accesskey: minioadmin
+      secretkey: minioadmin
+      usessl: false
