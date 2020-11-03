@@ -14,23 +14,23 @@ var (
 		Use:   "listBuckets",
 		Short: "List all buckets",
 		Run: func(cmd *cobra.Command, args []string) {
-			listBuckets(name, location)
+			listBuckets()
 		},
 	}
 )
 
 func init() {
-	listBucketsCmd.Flags().BoolVarP(&ts, "ts", "", false, "Print our with reation timestamps")
+	listBucketsCmd.Flags().BoolVarP(&ts, "ts", "", false, "Print out with creation timestamps")
 }
 
-func listBuckets(name string, location string) {
+func listBuckets() {
 	buckets, err := MinioClient.ListBuckets(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 	if ts {
 		for _, bucket := range buckets {
-			log.Printf("%v [created at %v]", bucket.Name, bucket.CreationDate.String())
+			log.Printf("%v [created at %v]", bucket.Name, bucket.CreationDate.Format("2006-01-02 15:04:05"))
 		}
 	} else {
 		for _, bucket := range buckets {

@@ -9,5 +9,5 @@ type Configuration struct {
 }
 
 type Configurations struct {
-	Configurations []Configuration `mapstructure:configurations`
+	Configurations []Configuration
 }

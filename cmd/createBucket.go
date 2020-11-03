@@ -16,14 +16,16 @@ var (
 		Use:   "createBucket",
 		Short: "Create a new bucket",
 		Run: func(cmd *cobra.Command, args []string) {
-			createBucket(name, location)
+			if len(args) == 1 {
+				createBucket(args[0], location)
+			} else {
+				log.Fatal("Only one argument is required")
+			}
 		},
 	}
 )
 
 func init() {
-	createBucketCmd.Flags().StringVarP(&name, "name", "n", "", "Name of the bucket to create")
-	createBucketCmd.MarkFlagRequired("name")
 	createBucketCmd.Flags().StringVarP(&location, "location", "l", "us-east-1", "Bucket location")
 }
 
