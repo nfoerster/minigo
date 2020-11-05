@@ -52,6 +52,7 @@ func init() {
 	rootCmd.AddCommand(bucketExistsCmd)
 	rootCmd.AddCommand(bucketToRemoveCmd)
 	rootCmd.AddCommand(listObjectsCmd)
+	rootCmd.AddCommand(getObjectCmd)
 }
 
 func checkCriticalError(err error) {
