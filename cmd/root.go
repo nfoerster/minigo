@@ -54,6 +54,7 @@ func init() {
 	rootCmd.AddCommand(listObjectsCmd)
 	rootCmd.AddCommand(getObjectsCmd)
 	rootCmd.AddCommand(removeObjectsCmd)
+	rootCmd.AddCommand(copyObjectsCmd)
 }
 
 func checkCriticalError(err error) {
