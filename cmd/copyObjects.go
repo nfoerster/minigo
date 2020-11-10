@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/spf13/cobra"
@@ -35,17 +36,55 @@ func copyObjects(bucket string, object string, destination string) {
 		log.Fatal(err)
 	}
 	statInfo, _ := obj.Stat()
-	log.Printf("%+v", statInfo)
 
-	var copyOptions minio.CopyDestOptions
-	if alternativeBucket != "" {
-		copyOptions = minio.CopyDestOptions{Bucket: alternativeBucket, Object: destination}
+	if statInfo.Size == 0 && statInfo.ContentType == "" {
+		//object is a directory
+		if !strings.HasSuffix(object, "/") {
+			object = object + "/"
+		}
+		//folder
+		objectCh := MinioClient.ListObjects(context.Background(), bucket, minio.ListObjectsOptions{
+			Prefix:    object,
+			Recursive: true,
+		})
+
+		for o := range objectCh {
+			if !strings.HasSuffix(destination, "/") {
+				destination = destination + "/"
+			}
+			//recursive call for each object found
+			copyObjects(bucket, o.Key, destination)
+		}
 	} else {
-		copyOptions = minio.CopyDestOptions{Bucket: bucket, Object: destination}
+		var copyOptions minio.CopyDestOptions
+
+		if strings.HasSuffix(destination, "/") {
+			//place content of s3 object to the desination directory
+
+			filename := strings.Split(object, "/")[len(strings.Split(object, "/"))-1]
+
+			if alternativeBucket != "" {
+				copyOptions = minio.CopyDestOptions{Bucket: alternativeBucket, Object: destination + filename}
+			} else {
+				copyOptions = minio.CopyDestOptions{Bucket: bucket, Object: destination + filename}
+			}
+			info, err := MinioClient.CopyObject(context.Background(), copyOptions, minio.CopySrcOptions{Bucket: bucket, Object: object})
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("Copied:%v from bucket:%v to:%v in bucket:%v", object, bucket, info.Key, info.Bucket)
+		} else {
+			if alternativeBucket != "" {
+				copyOptions = minio.CopyDestOptions{Bucket: alternativeBucket, Object: destination}
+			} else {
+				copyOptions = minio.CopyDestOptions{Bucket: bucket, Object: destination}
+			}
+			info, err := MinioClient.CopyObject(context.Background(), copyOptions, minio.CopySrcOptions{Bucket: bucket, Object: object})
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("Copied:%v from bucket:%v to:%v in bucket:%v", object, bucket, info.Key, info.Bucket)
+		}
 	}
-	info, err := MinioClient.CopyObject(context.Background(), copyOptions, minio.CopySrcOptions{Bucket: bucket, Object: object})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Copied:%v from bucket:%v to:%v in bucket:%v", object, bucket, info.Key, info.Bucket)
+
 }
