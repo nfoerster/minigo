@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nfoerster/miniogo/cmd"
+	"github.com/nfoerster/minigo/cmd"
 )
 
 func main() {

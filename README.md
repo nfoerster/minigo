@@ -1,1 +1,1 @@
-# miniogo
+# minigo

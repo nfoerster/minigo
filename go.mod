@@ -1,4 +1,4 @@
-module github.com/nfoerster/miniogo
+module github.com/nfoerster/minigo
 
 go 1.12
 
