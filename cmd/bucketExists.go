@@ -23,9 +23,6 @@ var (
 	}
 )
 
-func init() {
-}
-
 func bucketExists(bucketToCheck string) {
 	found, err := MinioClient.BucketExists(context.Background(), bucketToCheck)
 	if err != nil {
