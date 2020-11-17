@@ -19,6 +19,8 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 3 {
 				copyObjects(args[0], args[1], args[2])
+			} else if len(args) == 1 {
+				copyObjects(args[0], ".", ".")
 			} else {
 				log.Fatal("copyObjects <bucketName> <objectName> <destination>")
 			}
@@ -31,22 +33,38 @@ func init() {
 }
 
 func copyObjects(bucket string, object string, destination string) {
-	obj, err := MinioClient.GetObject(context.Background(), bucket, object, minio.GetObjectOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	statInfo, _ := obj.Stat()
+	shorthand := false
+	var statInfo minio.ObjectInfo
 
-	if statInfo.Size == 0 && statInfo.ContentType == "" {
+	if object == "/" {
+		//shorthand for everything
+		shorthand = true
+	}
+	if !shorthand {
+		obj, err := MinioClient.GetObject(context.Background(), bucket, object, minio.GetObjectOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		statInfo, _ = obj.Stat()
+	}
+
+	if shorthand || (statInfo.Size == 0 && statInfo.ContentType == "") {
 		//object is a directory
 		if !strings.HasSuffix(object, "/") {
 			object = object + "/"
 		}
+		var objectCh <-chan minio.ObjectInfo
 		//folder
-		objectCh := MinioClient.ListObjects(context.Background(), bucket, minio.ListObjectsOptions{
-			Prefix:    object,
-			Recursive: true,
-		})
+		if !shorthand {
+			objectCh = MinioClient.ListObjects(context.Background(), bucket, minio.ListObjectsOptions{
+				Prefix:    object,
+				Recursive: true,
+			})
+		} else {
+			objectCh = MinioClient.ListObjects(context.Background(), bucket, minio.ListObjectsOptions{
+				Recursive: true,
+			})
+		}
 
 		for o := range objectCh {
 			if !strings.HasSuffix(destination, "/") {
