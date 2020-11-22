@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	name     string
 	location string
 
 	createBucketCmd = &cobra.Command{

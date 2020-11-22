@@ -55,6 +55,7 @@ func init() {
 	rootCmd.AddCommand(getObjectsCmd)
 	rootCmd.AddCommand(removeObjectsCmd)
 	rootCmd.AddCommand(copyObjectsCmd)
+	rootCmd.AddCommand(mirrorBucketCmd)
 }
 
 func checkCriticalError(err error) {
