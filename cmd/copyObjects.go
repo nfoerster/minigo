@@ -18,7 +18,7 @@ var (
 		Long:  "Copies the selected object or objects to another path or bucket. Destination could be a path or file.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 3 {
-				copyObjects(args[0], args[1], args[2])
+				copyObjects(args[0], args[1], args[2], alternativeBucket)
 			} else {
 				log.Fatal("copyObjects <bucketName> <objectName> <destination>")
 			}
@@ -30,7 +30,7 @@ func init() {
 	copyObjectsCmd.Flags().StringVarP(&alternativeBucket, "bucket", "", "", "If given, data is copied to another bucket")
 }
 
-func copyObjects(bucket string, object string, destination string) {
+func copyObjects(bucket string, object string, destination string, destinationBucket string) {
 	obj, err := MinioClient.GetObject(context.Background(), bucket, object, minio.GetObjectOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -53,7 +53,7 @@ func copyObjects(bucket string, object string, destination string) {
 				destination = destination + "/"
 			}
 			//recursive call for each object found
-			copyObjects(bucket, o.Key, destination)
+			copyObjects(bucket, o.Key, destination, destinationBucket)
 		}
 	} else {
 		var copyOptions minio.CopyDestOptions
@@ -63,8 +63,8 @@ func copyObjects(bucket string, object string, destination string) {
 
 			filename := strings.Split(object, "/")[len(strings.Split(object, "/"))-1]
 
-			if alternativeBucket != "" {
-				copyOptions = minio.CopyDestOptions{Bucket: alternativeBucket, Object: destination + filename}
+			if destinationBucket != "" {
+				copyOptions = minio.CopyDestOptions{Bucket: destinationBucket, Object: destination + filename}
 			} else {
 				copyOptions = minio.CopyDestOptions{Bucket: bucket, Object: destination + filename}
 			}
@@ -74,8 +74,8 @@ func copyObjects(bucket string, object string, destination string) {
 			}
 			log.Printf("Copied:%v from bucket:%v to:%v in bucket:%v", object, bucket, info.Key, info.Bucket)
 		} else {
-			if alternativeBucket != "" {
-				copyOptions = minio.CopyDestOptions{Bucket: alternativeBucket, Object: destination}
+			if destinationBucket != "" {
+				copyOptions = minio.CopyDestOptions{Bucket: destinationBucket, Object: destination}
 			} else {
 				copyOptions = minio.CopyDestOptions{Bucket: bucket, Object: destination}
 			}
