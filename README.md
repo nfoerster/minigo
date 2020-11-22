@@ -175,3 +175,30 @@ Copies web.go in folder3 in bucket test to gui.go in bucket anothertest:
 ```console 
 minigo copyObjects test folder3/web.go gui.go -bucket anothertest
 ``` 
+
+Copies all objects from bucket test to bucket anothertest:
+```console 
+minigo copyObjects test . . -bucket anothertest
+``` 
+
+Copies all objects from bucket test to folder anotherFolder in bucket anothertest:
+```console 
+minigo copyObjects test . anotherFolder -bucket anothertest
+``` 
+
+## MirrorBucket
+
+Mirrors a bucket and all of its content to another bucket. If this bucket does not exist, create it. Usage:
+```console 
+minigo mirrorBucket <sourceBucketName> <targetBucketName>
+``` 
+
+Copies all objects bucket test to the new bucket anothertest:
+```console 
+minigo mirrorBucket test anothertest
+``` 
+
+Optional arguments:
+```
+-location - Specify the location of the target bucket
+```
