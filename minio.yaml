@@ -1,0 +1,10 @@
+configurations:
+    - name: cluster
+      endpoint: anywhereinthenet:9090
+      accesskey: fantasticuser
+      usessl: true
+    - name: local
+      endpoint: localhost:9000
+      accesskey: minioadmin
+      secretkey: minioadmin
+      usessl: false
